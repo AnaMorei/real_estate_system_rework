@@ -1,14 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package view;
 
+import dao.DatabaseConnection;
 import dao.HouseDAO;
 import dao.TransactionDAO;
 import dao.UserDAO;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.sql.Connection;
 import model.User;
 import model.House;
 import model.Transaction;
@@ -18,15 +16,26 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.UserType;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- *
- * @author Clara
- */
 public class DashboardScreen extends javax.swing.JFrame {
 
+  private final HouseDAO houseDAO;
+  private final TransactionDAO transactionDAO;
+  private final UserDAO userDAO;
+
   public DashboardScreen(User user) {
+
+    DatabaseConnection databaseConnection = DatabaseConnection.getInstance();
+    Connection connection = databaseConnection.getConnection();
+
+    this.houseDAO = new HouseDAO(connection);
+    this.transactionDAO = new TransactionDAO(connection);
+    this.userDAO = new UserDAO(connection);
+
     initComponents();
     centerOnScreen();
     setTitle("Imobiliaria online");
@@ -59,12 +68,19 @@ public class DashboardScreen extends javax.swing.JFrame {
     User selectedUser = (User) transactionCreateBuyerComboBox.getSelectedItem();
     String price = transactionCreatePriceInput.getText();
     LocalDate date = LocalDate.now();
-    Transaction transaction = new Transaction(Date.valueOf(date),
-            Double.parseDouble(price),
-            selectedUser.getId(),
-            user.getId(),
-            selectedHouse.getId());
-    boolean isTransactionInserted = new TransactionDAO().addTransaction(transaction);
+    Transaction transaction = new Transaction(
+        Date.valueOf(date),
+        Double.parseDouble(price),
+        selectedUser.getId(),
+        user.getId(),
+        selectedHouse.getId());
+    boolean isTransactionInserted = false;
+
+    try {
+      isTransactionInserted = transactionDAO.addTransaction(transaction);
+    } catch (SQLException ex) {
+      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+    }
 
     if (isTransactionInserted) {
       transactionCreateHouseComboBox.setSelectedIndex(-1);
@@ -72,19 +88,20 @@ public class DashboardScreen extends javax.swing.JFrame {
       transactionCreatePriceInput.setText("");
       updateAll();
       JOptionPane.showMessageDialog(
-              null,
-              "A transação foi cadastrada com sucesso.",
-              "Sucesso",
-              JOptionPane.INFORMATION_MESSAGE
+          null,
+          "A transação foi cadastrada com sucesso.",
+          "Sucesso",
+          JOptionPane.INFORMATION_MESSAGE
       );
+
       return;
     }
 
     JOptionPane.showMessageDialog(
-            null,
-            "Houve uma falha ao cadastrar a transação.",
-            "Erro",
-            JOptionPane.ERROR_MESSAGE
+        null,
+        "Houve uma falha ao cadastrar a transação.",
+        "Erro",
+        JOptionPane.ERROR_MESSAGE
     );
   }
 
@@ -94,8 +111,13 @@ public class DashboardScreen extends javax.swing.JFrame {
     String size = houseCreateSizeInput.getText();
     String price = houseCreatePriceInput.getText();
     House house = new House(address, description, Double.parseDouble(size), Double.parseDouble(price), user.getId());
+    boolean isHouseAdded = false;
 
-    boolean isHouseAdded = new HouseDAO().addHouse(house);
+    try {
+      isHouseAdded = houseDAO.addHouse(house);
+    } catch (SQLException ex) {
+      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+    }
 
     if (isHouseAdded) {
       houseCreateAddressInput.setText("");
@@ -104,18 +126,18 @@ public class DashboardScreen extends javax.swing.JFrame {
       houseCreatePriceInput.setText("");
       updateAll();
       JOptionPane.showMessageDialog(
-              null,
-              "A casa foi cadastrada com sucesso.",
-              "Sucesso",
-              JOptionPane.INFORMATION_MESSAGE
+          null,
+          "A casa foi cadastrada com sucesso.",
+          "Sucesso",
+          JOptionPane.INFORMATION_MESSAGE
       );
       return;
     }
     JOptionPane.showMessageDialog(
-            null,
-            "Houve uma falha ao cadastrar a casa.",
-            "Erro",
-            JOptionPane.ERROR_MESSAGE
+        null,
+        "Houve uma falha ao cadastrar a casa.",
+        "Erro",
+        JOptionPane.ERROR_MESSAGE
     );
   }
 
@@ -127,59 +149,100 @@ public class DashboardScreen extends javax.swing.JFrame {
   private void setComboBoxInfo() {
     transactionCreateHouseComboBox.removeAllItems();
     transactionCreateBuyerComboBox.removeAllItems();
-    List<House> houses = new HouseDAO().getAllHouses();
-    List<User> users = new UserDAO().getAllUsers();
+    List<House> houses = null;
+    List<User> users = null;
+
+    try {
+      houses = houseDAO.getAllHouses();
+      users = userDAO.getAllUsers();
+    } catch (SQLException ex) {
+      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
     DefaultComboBoxModel<House> houseModel = new DefaultComboBoxModel<>();
     DefaultComboBoxModel<User> userModel = new DefaultComboBoxModel<>();
 
-    for (House house : houses) {
-      houseModel.addElement(house);
+    if (houses != null) {
+      for (House house : houses) {
+        houseModel.addElement(house);
+      }
+      transactionCreateHouseComboBox.setModel(houseModel);
+
     }
 
-    for (User user : users) {
-      userModel.addElement(user);
+    if (users != null) {
+      for (User user : users) {
+        userModel.addElement(user);
+      }
+      transactionCreateBuyerComboBox.setModel(userModel);
     }
-
-    transactionCreateHouseComboBox.setModel(houseModel);
-    transactionCreateBuyerComboBox.setModel(userModel);
   }
 
   private void setHouseTableData() {
-    List<House> houses = new HouseDAO().getAllHouses();
+    List<House> houses = null;
+
+    try {
+      houses = new HouseDAO().getAllHouses();
+    } catch (SQLException ex) {
+      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
     DefaultTableModel tableModel = (DefaultTableModel) houseListTable.getModel();
     tableModel.setRowCount(0);
 
-    for (House house : houses) {
-      Object[] row = {house.getAddress(), house.getDescription(), house.getSize() + " m²", String.format("%.2f", house.getPrice())};
-      tableModel.addRow(row);
+    if (houses != null) {
+      for (House house : houses) {
+        Object[] row = {house.getAddress(), house.getDescription(), house.getSize() + " m²", String.format("%.2f", house.getPrice())};
+        tableModel.addRow(row);
+      }
     }
+
     houseListTable.setEnabled(false);
   }
 
   private void setTransactionTableData() {
-    List<Transaction> transactions = new TransactionDAO().getAllTransactions();
+    List<Transaction> transactions = null;
+
+    try {
+      transactions = transactionDAO.getAllTransactions();
+    } catch (SQLException ex) {
+      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
     DefaultTableModel tableModel = (DefaultTableModel) TransactionListTable.getModel();
     tableModel.setRowCount(0);
 
-    for (Transaction transaction : transactions) {
-      House house = new HouseDAO().getHouseById(transaction.getHouseId());
-      User user = new UserDAO().getUserById(transaction.getBuyerId());
+    if (transactions != null) {
+      for (Transaction transaction : transactions) {
+        House house = null;
+        User user = null;
 
-      Object[] row = {
-        house.getAddress(),
-        user.getName(),
-        transaction.getAmount(),
-        transaction.getDate(),};
-      tableModel.addRow(row);
+        try {
+          house = houseDAO.getHouseById(transaction.getHouseId());
+          user = userDAO.getUserById(transaction.getBuyerId());
+        } catch (SQLException ex) {
+          Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (house == null || user == null) {
+          return;
+        }
+
+        Object[] row = {
+          house.getAddress(),
+          user.getName(),
+          transaction.getAmount(),
+          transaction.getDate(),};
+
+        tableModel.addRow(row);
+      }
     }
 
     TransactionListTable.setEnabled(false);
   }
 
   /**
-   * This method is called from within the constructor to initialize the form.
-   * WARNING: Do NOT modify this code. The content of this method is always
-   * regenerated by the Form Editor.
+   * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The content of this method is always regenerated by the Form Editor.
    */
   @SuppressWarnings("unchecked")
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -558,41 +621,7 @@ public class DashboardScreen extends javax.swing.JFrame {
     // TODO add your handling code here:
   }//GEN-LAST:event_createTransactionActionPerformed
 
-  /**
-   * @param args the command line arguments
-   */
-//  public static void main(String args[]) {
-//    /* Set the Nimbus look and feel */
-//    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//     */
-//    try {
-//      for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//        if ("Nimbus".equals(info.getName())) {
-//          javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//          break;
-//        }
-//      }
-//    } catch (ClassNotFoundException ex) {
-//      java.util.logging.Logger.getLogger(DashboardScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//    } catch (InstantiationException ex) {
-//      java.util.logging.Logger.getLogger(DashboardScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//    } catch (IllegalAccessException ex) {
-//      java.util.logging.Logger.getLogger(DashboardScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//      java.util.logging.Logger.getLogger(DashboardScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//    }
-//    //</editor-fold>
-//
-//    /* Create and display the form */
-//    java.awt.EventQueue.invokeLater(new Runnable() {
-//      public void run() {
-//        new DashboardScreen().setVisible(true);
-//      }
-//    });
-//  }
-
+  // <editor-fold defaultstate="collapsed" desc="Variables of all components">
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JTable TransactionListTable;
   private javax.swing.JButton createHouse;
@@ -629,4 +658,5 @@ public class DashboardScreen extends javax.swing.JFrame {
   private javax.swing.JScrollPane transactionListScrollPane;
   private javax.swing.JTabbedPane transactionTab;
   // End of variables declaration//GEN-END:variables
+  // </editor-fold>     
 }

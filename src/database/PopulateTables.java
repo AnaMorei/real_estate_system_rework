@@ -4,21 +4,25 @@ import dao.*;
 import model.*;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class PopulateTables {
 
   public static void main(String args[]) {
-    DatabaseConnection database = new DatabaseConnection();
+    DatabaseConnection database = DatabaseConnection.getInstance();
+    Connection connection = null;
 
     try {
       database.startConnection();
-    } catch (Exception e) {
-      System.out.println("Failed to connect to database.");
+      connection = database.getConnection();
+
+    } catch (SQLException erro) {
+      return;
     }
 
-    Connection connection = database.getConnection();
+    UserDAO userDao = new UserDAO(connection);
+    HouseDAO houseDao = new HouseDAO(connection);
+    TransactionDAO transactionDao = new TransactionDAO(connection);
 
     User[] users = {
       new User("John Doe", "john.doe@example.com", "40214857247", UserType.REALTOR),
@@ -39,14 +43,32 @@ public class PopulateTables {
       new Transaction(Date.valueOf("2023-10-15"), 350000.00, 3, 2, 4),
       new Transaction(Date.valueOf("2023-10-20"), 500000.00, 4, 1, 5)};
 
-    for (User user : users) {
-      new UserDAO().addUser(user, "1".toCharArray());
+    try {
+      for (User user : users) {
+        userDao.addUser(user, "123".toCharArray());
+      }
+
+      for (House house : houses) {
+        houseDao.addHouse(house);
+      }
+      for (Transaction transaction : transactions) {
+        transactionDao.addTransaction(transaction);
+      }
+
+      System.out.println("Tabelas populadas com sucesso.");
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao popular banco de dados: " + error.getMessage());
+
+    } finally {
+
+      try {
+        database.closeConnection();
+      } catch (SQLException error) {
+        System.err.println("Erro ao fechar conexão depois de popular o banco de dados: " + error.getMessage());
+      }
+
     }
-    for (House house : houses) {
-      new HouseDAO().addHouse(house);
-    }
-    for (Transaction transaction : transactions) {
-      new TransactionDAO().addTransaction(transaction);
-    }
+
   }
 }

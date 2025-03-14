@@ -2,29 +2,29 @@ package realestatesystem;
 
 import dao.DatabaseConnection;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import view.LoginScreen;
 
-/**
- *
- * @author Clara
- */
 public class RealEstateSystem {
 
-  private DatabaseConnection database = new DatabaseConnection();
-
   public static void main(String args[]) {
+    DatabaseConnection database = DatabaseConnection.getInstance();
+
     try {
-      new DatabaseConnection().startConnection();
-    } catch (SQLException e) {
-      e.printStackTrace();
+      database.startConnection();
+      
+    } catch (SQLException error) {
+      JOptionPane.showMessageDialog(
+          null,
+          "Houve algum erro ao se conectar com o banco de dados.",
+          "Erro",
+          JOptionPane.ERROR_MESSAGE);
+    
+      System.exit(0);
     }
 
-
-    /* Create and display the form */
-    java.awt.EventQueue.invokeLater(new Runnable() {
-      public void run() {
-        new LoginScreen().setVisible(true);
-      }
+    java.awt.EventQueue.invokeLater(() -> {
+      new LoginScreen().setVisible(true);
     });
 
   }

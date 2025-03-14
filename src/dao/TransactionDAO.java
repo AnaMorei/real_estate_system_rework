@@ -1,7 +1,6 @@
 package dao;
 
 import model.Transaction;
-import dao.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,29 +10,39 @@ import java.util.List;
 
 public class TransactionDAO {
 
-  Connection connection = new DatabaseConnection().getConnection();
+  private final Connection connection;
 
-  public boolean addTransaction(Transaction transaction) {
+  public TransactionDAO(Connection connection) {
+    this.connection = connection;
+  }
+
+  public boolean addTransaction(Transaction transaction) throws SQLException {
     String query = "INSERT INTO Transactions (date, amount, buyer_id, realtor_id, house_id) VALUES (?, ?, ?, ?, ?)";
+
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       statement.setDate(1, new java.sql.Date(transaction.getDate().getTime()));
       statement.setDouble(2, transaction.getAmount());
       statement.setInt(3, transaction.getBuyerId());
       statement.setInt(4, transaction.getRealtorId());
       statement.setInt(5, transaction.getHouseId());
+
       int rowInserted = statement.executeUpdate();
+      
       return rowInserted > 0;
 
-    } catch (SQLException e) {
-      e.printStackTrace();
+    } catch (SQLException error) {
+      System.err.println("Erro ao inserir transação no banco de dados: " + error.getMessage());
+      throw error;
     }
-    return false;
   }
 
-  public List<Transaction> getAllTransactions() {
+  public List<Transaction> getAllTransactions() throws SQLException {
     List<Transaction> transactions = new ArrayList<>();
     String query = "SELECT * FROM Transactions";
-    try (PreparedStatement statement = connection.prepareStatement(query); ResultSet resultSet = statement.executeQuery();) {
+
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      ResultSet resultSet = statement.executeQuery();
+
       while (resultSet.next()) {
         Transaction transaction = new Transaction();
         transaction.setId(resultSet.getInt("id"));
@@ -44,18 +53,23 @@ public class TransactionDAO {
         transaction.setHouseId(resultSet.getInt("house_id"));
         transactions.add(transaction);
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
+
+      return transactions;
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao buscar transações no banco de dados: " + error.getMessage());
+      throw error;
     }
-    return transactions;
   }
 
-  public Transaction findTransactionById(int transactionId) {
+  public Transaction findTransactionById(int transactionId) throws SQLException {
     String query = "SELECT * FROM Transactions WHERE id = ?";
     Transaction transaction = null;
+
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       statement.setInt(1, transactionId);
       ResultSet resultSet = statement.executeQuery();
+
       if (resultSet.next()) {
         transaction = new Transaction();
         transaction.setId(resultSet.getInt("id"));
@@ -65,19 +79,27 @@ public class TransactionDAO {
         transaction.setRealtorId(resultSet.getInt("realtor_id"));
         transaction.setHouseId(resultSet.getInt("house_id"));
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
+
+      return transaction;
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao buscar transação no banco de dados: " + error.getMessage());
+      throw error;
     }
-    return transaction;
   }
 
-  public void deleteTransaction(int transactionId) {
+  public boolean deleteTransaction(int transactionId) throws SQLException {
     String query = "DELETE FROM Transactions WHERE id = ?";
+
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       statement.setInt(1, transactionId);
-      statement.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
+
+      int rowChanged = statement.executeUpdate();
+      return rowChanged > 0;
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao deletar transação no banco de dados: " + error.getMessage());
+      throw error;
     }
   }
 }

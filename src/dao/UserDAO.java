@@ -1,6 +1,5 @@
 package dao;
 
-import dao.DatabaseConnection;
 import util.PasswordUtil;
 import model.UserType;
 import model.User;
@@ -13,11 +12,15 @@ import java.util.List;
 
 public class UserDAO {
 
-  Connection connection = new DatabaseConnection().getConnection();
+  private final Connection connection;
 
-  public List<User> getAllUsers() {
-    String sql = "SELECT * FROM Users";
+  public UserDAO(Connection connection) {
+    this.connection = connection;
+  }
+
+  public List<User> getAllUsers() throws SQLException {
     List<User> users = new ArrayList<>();
+    String sql = "SELECT * FROM Users";
 
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       ResultSet resultSet = statement.executeQuery();
@@ -31,58 +34,66 @@ public class UserDAO {
         user.setType(UserType.fromTypeName(resultSet.getString("type")));
         users.add(user);
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
+
+      return users;
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao inserir usuário no banco de dados: " + error.getMessage());
+      throw error;
     }
-    return users;
   }
 
-  public User getUserById(int id) {
+  public User getUserById(int id) throws SQLException {
     String sql = "SELECT * FROM Users WHERE id = ?";
+    User user = null;
 
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setInt(1, id);
       ResultSet resultSet = statement.executeQuery();
 
       if (resultSet.next()) {
-        User user = new User();
+        user = new User();
         user.setId(resultSet.getInt("id"));
         user.setName(resultSet.getString("name"));
         user.setEmail(resultSet.getString("email"));
         user.setCpf(resultSet.getString("cpf"));
         user.setType(UserType.fromTypeName(resultSet.getString("type")));
-        return user;
       }
 
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
+      return user;
 
-    return null;
+    } catch (SQLException error) {
+      System.err.println("Erro ao buscar usuário no banco de dados: " + error.getMessage());
+      throw error;
+    }
   }
 
-  public User getUserByEmail(String email) {
+  public User getUserByEmail(String email) throws SQLException {
     final String sql = "SELECT * FROM Users WHERE email = ?";
+    User user = null;
 
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setString(1, email);
       ResultSet resultSet = statement.executeQuery();
+
       if (resultSet.next()) {
-        User user = new User();
+        user = new User();
         user.setId(resultSet.getInt("id"));
         user.setName(resultSet.getString("name"));
         user.setEmail(resultSet.getString("email"));
         user.setCpf(resultSet.getString("cpf"));
         user.setType(UserType.fromTypeName(resultSet.getString("type")));
-        return user;
       }
-    } catch (SQLException e) {
-      e.addSuppressed(e);
+
+      return user;
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao buscar usuário no banco de dados: " + error.getMessage());
+      throw error;
     }
-    return null;
   }
 
-  public boolean validateUser(String email, char[] password) {
+  public boolean validateUser(String email, char[] password) throws SQLException {
     final String query = "SELECT * FROM Users WHERE email = ?";
 
     try (PreparedStatement statement = connection.prepareStatement(query);) {
@@ -95,37 +106,34 @@ public class UserDAO {
 
       String hashedPassword = result.getString("password");
 
-      boolean isValidUser = new PasswordUtil().verifyPassword(password, hashedPassword);
+      return PasswordUtil.verifyPassword(password, hashedPassword);
 
-      if (isValidUser) {
-        return true;
-      };
-
-    } catch (SQLException e) {
-      e.printStackTrace();
+    } catch (SQLException error) {
+      System.err.println("Erro ao validar usuário no banco de dados: " + error.getMessage());
+      throw error;
     }
-    return false;
   }
 
-  public boolean addUser(User user, char[] password) {
+  public boolean addUser(User user, char[] password) throws SQLException {
     final String query = "INSERT INTO Users (name, email, cpf, password, type) VALUES (?, ?, ?, ?, ?)";
+
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       statement.setString(1, user.getName());
       statement.setString(2, user.getEmail());
       statement.setString(3, user.getCpf());
-      statement.setString(4, new PasswordUtil().hashPassword(password));
+      statement.setString(4, PasswordUtil.hashPassword(password));
       statement.setString(5, user.getType().getTypeName());
 
       final int rowsInserted = statement.executeUpdate();
       return rowsInserted > 0;
 
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
+    } catch (SQLException error) {
+      System.err.println("Erro ao remover usuário no banco de dados: " + error.getMessage());
+      throw error;
     }
   }
 
-  public boolean removeUser(String email) {
+  public boolean removeUser(String email) throws SQLException {
     final String query = "DELETE FROM Users WHERE email = ?";
 
     try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -133,9 +141,10 @@ public class UserDAO {
 
       int rowsDeleted = statement.executeUpdate();
       return rowsDeleted > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
+
+    } catch (SQLException error) {
+      System.err.println("Erro ao remover usuário no banco de dados: " + error.getMessage());
+      throw error;
     }
   }
 
