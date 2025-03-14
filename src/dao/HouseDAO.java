@@ -16,6 +16,10 @@ public class HouseDAO {
     this.connection = connection;
   }
 
+  public HouseDAO() {
+    throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+  }
+
   public boolean addHouse(House house) throws SQLException {
     String query = "INSERT INTO Houses (address, description, price, size, realtor_id) VALUES (?, ?, ?, ?, ?)";
 
