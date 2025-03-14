@@ -146,11 +146,6 @@ public class LoginScreen extends javax.swing.JFrame {
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("Imobiliária Systems");
     setResizable(false);
-    addContainerListener(new java.awt.event.ContainerAdapter() {
-      public void componentAdded(java.awt.event.ContainerEvent evt) {
-        formComponentAdded(evt);
-      }
-    });
 
     loginTab.setMaximumSize(new java.awt.Dimension(325, 400));
     loginTab.setMinimumSize(new java.awt.Dimension(300, 145));
@@ -167,11 +162,6 @@ public class LoginScreen extends javax.swing.JFrame {
     emailText.setFont(new java.awt.Font("Roboto", 0, 16)); // NOI18N
     emailText.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
     emailText.setPreferredSize(new java.awt.Dimension(64, 45));
-    emailText.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        emailTextActionPerformed(evt);
-      }
-    });
     loginEmail.add(emailText, java.awt.BorderLayout.PAGE_END);
 
     loginTab.add(loginEmail);
@@ -268,11 +258,6 @@ public class LoginScreen extends javax.swing.JFrame {
     createPassword.add(createPasswordLabel);
 
     passwordInput.setPreferredSize(new java.awt.Dimension(300, 45));
-    passwordInput.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        passwordInputActionPerformed(evt);
-      }
-    });
     createPassword.add(passwordInput);
 
     createAccountTab.add(createPassword);
@@ -316,19 +301,6 @@ public class LoginScreen extends javax.swing.JFrame {
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
-
-  private void emailTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailTextActionPerformed
-    // TODO add your handling code here:
-
-  }//GEN-LAST:event_emailTextActionPerformed
-
-  private void passwordInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordInputActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_passwordInputActionPerformed
-
-  private void formComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_formComponentAdded
-    // TODO add your handling code here:
-  }//GEN-LAST:event_formComponentAdded
 
   // <editor-fold defaultstate="collapsed" desc="Variables of all components">
   // Variables declaration - do not modify//GEN-BEGIN:variables

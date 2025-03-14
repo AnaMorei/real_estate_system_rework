@@ -306,11 +306,6 @@ public class DashboardScreen extends javax.swing.JFrame {
       }
     });
     houseListTable.setShowGrid(true);
-    houseListTable.addContainerListener(new java.awt.event.ContainerAdapter() {
-      public void componentAdded(java.awt.event.ContainerEvent evt) {
-        houseListTableComponentAdded(evt);
-      }
-    });
     houseListScrollPane.setViewportView(houseListTable);
 
     houseTab.addTab("Listar", houseListScrollPane);
@@ -324,11 +319,6 @@ public class DashboardScreen extends javax.swing.JFrame {
     houseCreateAddressLabel.setText("Endereço");
 
     houseCreateAddressInput.setPreferredSize(new java.awt.Dimension(300, 40));
-    houseCreateAddressInput.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        houseCreateAddressInputActionPerformed(evt);
-      }
-    });
 
     javax.swing.GroupLayout houseCreateAddressLayout = new javax.swing.GroupLayout(houseCreateAddress);
     houseCreateAddress.setLayout(houseCreateAddressLayout);
@@ -357,11 +347,6 @@ public class DashboardScreen extends javax.swing.JFrame {
     houseCreateDescriptionLabel.setText("Descrição");
 
     houseCreateDescriptionInput.setPreferredSize(new java.awt.Dimension(300, 40));
-    houseCreateDescriptionInput.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        houseCreateDescriptionInputActionPerformed(evt);
-      }
-    });
 
     javax.swing.GroupLayout houseCreateDescriptionPanelLayout = new javax.swing.GroupLayout(houseCreateDescriptionPanel);
     houseCreateDescriptionPanel.setLayout(houseCreateDescriptionPanelLayout);
@@ -390,11 +375,6 @@ public class DashboardScreen extends javax.swing.JFrame {
     houseCreateSizeLabel.setText("Tamanho");
 
     houseCreateSizeInput.setPreferredSize(new java.awt.Dimension(300, 40));
-    houseCreateSizeInput.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        houseCreateSizeInputActionPerformed(evt);
-      }
-    });
 
     javax.swing.GroupLayout houseCreateSizePanelLayout = new javax.swing.GroupLayout(houseCreateSizePanel);
     houseCreateSizePanel.setLayout(houseCreateSizePanelLayout);
@@ -423,11 +403,6 @@ public class DashboardScreen extends javax.swing.JFrame {
     houseCreatePriceLabel.setText("Preço");
 
     houseCreatePriceInput.setPreferredSize(new java.awt.Dimension(300, 40));
-    houseCreatePriceInput.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        houseCreatePriceInputActionPerformed(evt);
-      }
-    });
 
     javax.swing.GroupLayout houseCreatePriceLayout = new javax.swing.GroupLayout(houseCreatePrice);
     houseCreatePrice.setLayout(houseCreatePriceLayout);
@@ -543,22 +518,12 @@ public class DashboardScreen extends javax.swing.JFrame {
     transactionCreatePriceInput.setMinimumSize(new java.awt.Dimension(300, 45));
     transactionCreatePriceInput.setName(""); // NOI18N
     transactionCreatePriceInput.setPreferredSize(new java.awt.Dimension(300, 45));
-    transactionCreatePriceInput.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        transactionCreatePriceInputActionPerformed(evt);
-      }
-    });
     transactionCreatePricePanel.add(transactionCreatePriceInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, -1, -1));
 
     transactionCreateInnerPanel.add(transactionCreatePricePanel);
 
     createTransaction.setText("Criar");
     createTransaction.setPreferredSize(new java.awt.Dimension(300, 45));
-    createTransaction.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        createTransactionActionPerformed(evt);
-      }
-    });
     transactionCreateInnerPanel.add(createTransaction);
 
     javax.swing.GroupLayout transactionCreatePanelLayout = new javax.swing.GroupLayout(transactionCreatePanel);
@@ -592,35 +557,6 @@ public class DashboardScreen extends javax.swing.JFrame {
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
-
-  private void houseCreateAddressInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_houseCreateAddressInputActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_houseCreateAddressInputActionPerformed
-
-  private void houseCreateDescriptionInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_houseCreateDescriptionInputActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_houseCreateDescriptionInputActionPerformed
-
-  private void houseCreatePriceInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_houseCreatePriceInputActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_houseCreatePriceInputActionPerformed
-
-  private void houseCreateSizeInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_houseCreateSizeInputActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_houseCreateSizeInputActionPerformed
-
-  private void houseListTableComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_houseListTableComponentAdded
-    // TODO add your handling code here:
-
-  }//GEN-LAST:event_houseListTableComponentAdded
-
-  private void transactionCreatePriceInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transactionCreatePriceInputActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_transactionCreatePriceInputActionPerformed
-
-  private void createTransactionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createTransactionActionPerformed
-    // TODO add your handling code here:
-  }//GEN-LAST:event_createTransactionActionPerformed
 
   // <editor-fold defaultstate="collapsed" desc="Variables of all components">
   // Variables declaration - do not modify//GEN-BEGIN:variables
