@@ -31,7 +31,6 @@ public class TransactionDAO {
       return rowInserted > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao inserir transação no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -57,7 +56,6 @@ public class TransactionDAO {
       return transactions;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar transações no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -83,7 +81,6 @@ public class TransactionDAO {
       return transaction;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar transação no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -98,7 +95,6 @@ public class TransactionDAO {
       return rowChanged > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao deletar transação no banco de dados: " + error.getMessage());
       throw error;
     }
   }

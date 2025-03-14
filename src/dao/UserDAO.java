@@ -1,6 +1,6 @@
 package dao;
 
-import util.PasswordUtil;
+import utils.PasswordUtil;
 import model.UserType;
 import model.User;
 import java.sql.Connection;
@@ -38,7 +38,6 @@ public class UserDAO {
       return users;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao inserir usuário no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -63,7 +62,6 @@ public class UserDAO {
       return user;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar usuário no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -88,7 +86,6 @@ public class UserDAO {
       return user;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar usuário no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -109,7 +106,6 @@ public class UserDAO {
       return PasswordUtil.verifyPassword(password, hashedPassword);
 
     } catch (SQLException error) {
-      System.err.println("Erro ao validar usuário no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -128,7 +124,6 @@ public class UserDAO {
       return rowsInserted > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao remover usuário no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -143,7 +138,6 @@ public class UserDAO {
       return rowsDeleted > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao remover usuário no banco de dados: " + error.getMessage());
       throw error;
     }
   }

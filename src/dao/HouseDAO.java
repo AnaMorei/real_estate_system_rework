@@ -16,10 +16,6 @@ public class HouseDAO {
     this.connection = connection;
   }
 
-  public HouseDAO() {
-    throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-  }
-
   public boolean addHouse(House house) throws SQLException {
     String query = "INSERT INTO Houses (address, description, price, size, realtor_id) VALUES (?, ?, ?, ?, ?)";
 
@@ -34,7 +30,6 @@ public class HouseDAO {
       return rowInserted > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao inserir casa no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -59,7 +54,6 @@ public class HouseDAO {
       return houses;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar casa no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -78,7 +72,6 @@ public class HouseDAO {
       return rowChanged > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar casa no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -93,7 +86,6 @@ public class HouseDAO {
       return rowChanged > 0;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao deletar casa no banco de dados: " + error.getMessage());
       throw error;
     }
   }
@@ -118,7 +110,6 @@ public class HouseDAO {
       return house;
 
     } catch (SQLException error) {
-      System.err.println("Erro ao buscar casa no banco de dados: " + error.getMessage());
       throw error;
     }
   }

@@ -12,14 +12,12 @@ import model.House;
 import model.Transaction;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.UserType;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import utils.MessageDisplayer;
 
 public class DashboardScreen extends javax.swing.JFrame {
 
@@ -79,7 +77,8 @@ public class DashboardScreen extends javax.swing.JFrame {
     try {
       isTransactionInserted = transactionDAO.addTransaction(transaction);
     } catch (SQLException ex) {
-      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao criar transação: " + ex.getMessage());
+      return;
     }
 
     if (isTransactionInserted) {
@@ -87,21 +86,20 @@ public class DashboardScreen extends javax.swing.JFrame {
       transactionCreateBuyerComboBox.setSelectedIndex(-1);
       transactionCreatePriceInput.setText("");
       updateAll();
-      JOptionPane.showMessageDialog(
+
+      MessageDisplayer.showSuccessMessage(
           null,
-          "A transação foi cadastrada com sucesso.",
-          "Sucesso",
-          JOptionPane.INFORMATION_MESSAGE
+          "Por favor, certifique-se de que as senhas coincidem.",
+          "Sucesso"
       );
 
       return;
     }
 
-    JOptionPane.showMessageDialog(
+    MessageDisplayer.showErrorMessage(
         null,
         "Houve uma falha ao cadastrar a transação.",
-        "Erro",
-        JOptionPane.ERROR_MESSAGE
+        "Erro"
     );
   }
 
@@ -116,7 +114,8 @@ public class DashboardScreen extends javax.swing.JFrame {
     try {
       isHouseAdded = houseDAO.addHouse(house);
     } catch (SQLException ex) {
-      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar a casa: " + ex.getMessage());
+      return;
     }
 
     if (isHouseAdded) {
@@ -125,19 +124,20 @@ public class DashboardScreen extends javax.swing.JFrame {
       houseCreateSizeInput.setText("");
       houseCreatePriceInput.setText("");
       updateAll();
-      JOptionPane.showMessageDialog(
+
+      MessageDisplayer.showSuccessMessage(
           null,
           "A casa foi cadastrada com sucesso.",
-          "Sucesso",
-          JOptionPane.INFORMATION_MESSAGE
+          "Sucesso"
       );
+
       return;
     }
-    JOptionPane.showMessageDialog(
+
+    MessageDisplayer.showErrorMessage(
         null,
         "Houve uma falha ao cadastrar a casa.",
-        "Erro",
-        JOptionPane.ERROR_MESSAGE
+        "Erro"
     );
   }
 
@@ -156,7 +156,8 @@ public class DashboardScreen extends javax.swing.JFrame {
       houses = houseDAO.getAllHouses();
       users = userDAO.getAllUsers();
     } catch (SQLException ex) {
-      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar as casas ou usuários: " + ex.getMessage());
+      return;
     }
 
     DefaultComboBoxModel<House> houseModel = new DefaultComboBoxModel<>();
@@ -167,7 +168,6 @@ public class DashboardScreen extends javax.swing.JFrame {
         houseModel.addElement(house);
       }
       transactionCreateHouseComboBox.setModel(houseModel);
-
     }
 
     if (users != null) {
@@ -182,9 +182,10 @@ public class DashboardScreen extends javax.swing.JFrame {
     List<House> houses = null;
 
     try {
-      houses = new HouseDAO().getAllHouses();
+      houses = houseDAO.getAllHouses();
     } catch (SQLException ex) {
-      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar todas as casas: " + ex.getMessage());
+      return;
     }
 
     DefaultTableModel tableModel = (DefaultTableModel) houseListTable.getModel();
@@ -206,7 +207,7 @@ public class DashboardScreen extends javax.swing.JFrame {
     try {
       transactions = transactionDAO.getAllTransactions();
     } catch (SQLException ex) {
-      Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar transações: " + ex.getMessage());
     }
 
     DefaultTableModel tableModel = (DefaultTableModel) TransactionListTable.getModel();
@@ -221,7 +222,7 @@ public class DashboardScreen extends javax.swing.JFrame {
           house = houseDAO.getHouseById(transaction.getHouseId());
           user = userDAO.getUserById(transaction.getBuyerId());
         } catch (SQLException ex) {
-          Logger.getLogger(DashboardScreen.class.getName()).log(Level.SEVERE, null, ex);
+          MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar a casa ou usuário: " + ex.getMessage());
         }
 
         if (house == null || user == null) {

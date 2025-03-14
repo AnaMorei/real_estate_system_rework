@@ -2,7 +2,7 @@ package realestatesystem;
 
 import dao.DatabaseConnection;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
+import utils.MessageDisplayer;
 import view.LoginScreen;
 
 public class RealEstateSystem {
@@ -12,14 +12,9 @@ public class RealEstateSystem {
 
     try {
       database.startConnection();
-      
+
     } catch (SQLException error) {
-      JOptionPane.showMessageDialog(
-          null,
-          "Houve algum erro ao se conectar com o banco de dados.",
-          "Erro",
-          JOptionPane.ERROR_MESSAGE);
-    
+      MessageDisplayer.showDatabaseErrorDialog(null, "Houve algum erro ao se conectar com o banco de dados.");
       System.exit(0);
     }
 

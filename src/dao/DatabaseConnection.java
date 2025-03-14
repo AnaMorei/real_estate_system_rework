@@ -3,6 +3,8 @@ package dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import utils.MessageDisplayer;
 
 public class DatabaseConnection {
 
@@ -32,30 +34,24 @@ public class DatabaseConnection {
     if (connection == null || connection.isClosed()) {
       try {
         DatabaseConnection.connection = DriverManager.getConnection(CONNECTION_STR + DATABASE, USER, PASSWORD);
-
         if (connection != null) {
-          System.out.println("Connection to dabase established.");
+          MessageDisplayer.logMessage(Level.INFO, "Connection to dabase established.");
         }
-
-      } catch (SQLException error) {
-        System.err.println("Error starting database connection:" + error.getMessage());
-        throw error;
+      } catch (SQLException ex) {
+        throw ex;
       }
     }
   }
 
   public void closeConnection() throws SQLException {
-
     if (connection != null && !connection.isClosed()) {
       try {
         connection.close();
-        System.err.println("Database connection closed.");
-
+        MessageDisplayer.logMessage(Level.INFO, "Database connection closed.");
       } catch (SQLException error) {
-        System.err.println("Error closing database connection: " + error.getMessage());
+        MessageDisplayer.logMessage(Level.SEVERE, "Error closing database connection: " + error.getMessage());
         throw error;
       }
     }
-
   }
 }

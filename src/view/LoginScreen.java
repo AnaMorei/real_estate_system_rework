@@ -6,9 +6,7 @@ import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
+import utils.MessageDisplayer;
 import model.User;
 import model.UserType;
 
@@ -48,11 +46,10 @@ public class LoginScreen extends javax.swing.JFrame {
     final char[] confirmPassword = confirmPasswordInput.getPassword();
 
     if (!new String(password).equals(new String(confirmPassword))) {
-      JOptionPane.showMessageDialog(
+      MessageDisplayer.showErrorMessage(
           null,
-          "Houve uma falha ao cadastrar o usuário.",
-          "Erro",
-          JOptionPane.ERROR_MESSAGE
+          "Por favor, certifique-se de que as senhas coincidem.",
+          "Erro"
       );
     }
 
@@ -62,24 +59,22 @@ public class LoginScreen extends javax.swing.JFrame {
     try {
       isUserCreated = userDAO.addUser(user, password);
     } catch (SQLException ex) {
-      Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar usuário: " + ex.getMessage());
     }
 
     if (isUserCreated) {
-      JOptionPane.showMessageDialog(
+      MessageDisplayer.showSuccessMessage(
           null,
-          "O usuário foi cadastrada com sucesso.",
-          "Sucesso",
-          JOptionPane.INFORMATION_MESSAGE
+          "O usuário foi cadastrado com sucesso.",
+          "Sucesso"
       );
       return;
     }
 
-    JOptionPane.showMessageDialog(
+    MessageDisplayer.showErrorMessage(
         null,
         "Houve uma falha ao cadastrar o usuário.",
-        "Erro",
-        JOptionPane.ERROR_MESSAGE
+        "Erro"
     );
   }
 
@@ -95,7 +90,7 @@ public class LoginScreen extends javax.swing.JFrame {
       isUserValid = userDAO.validateUser(email, password);
 
     } catch (SQLException ex) {
-      Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar usuário: " + ex.getMessage());
     }
 
     if (isUserValid) {
@@ -105,11 +100,10 @@ public class LoginScreen extends javax.swing.JFrame {
       return;
     }
 
-    JOptionPane.showMessageDialog(
+    MessageDisplayer.showErrorMessage(
         null,
-        "Houve uma falha ao autentificar o usuário.",
-        "Erro",
-        JOptionPane.ERROR_MESSAGE
+        "Houve uma falha ao autentificar o usuário, por favor verifique suas informações.",
+        "Erro"
     );
   }
 
