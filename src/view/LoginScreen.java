@@ -25,9 +25,8 @@ public class LoginScreen extends javax.swing.JFrame {
     setResizable(false);
     centerOnScreen();
 
-    buttonLogin.addActionListener(e -> tryLogin());
-    buttonCreateUser.addActionListener(e -> tryCreateUser());
-
+    buttonLogin.addActionListener(e -> handleLoginAttempt());
+    buttonCreateUser.addActionListener(e -> handleCreateUserAttempt());
   }
 
   private void centerOnScreen() {
@@ -37,74 +36,91 @@ public class LoginScreen extends javax.swing.JFrame {
     setLocation(x, y);
   }
 
-  private void tryCreateUser() {
+  private void handleCreateUserAttempt() {
+    String name = nameInput.getText();
+    String email = emailInput.getText();
+    String cpf = cpfInput.getText();
+    char[] password = passwordInput.getPassword();
+    char[] confirmPassword = confirmPasswordInput.getPassword();
 
-    final String name = nameInput.getText();
-    final String email = emailInput.getText();
-    final String cpf = cpfInput.getText();
-    final char[] password = passwordInput.getPassword();
-    final char[] confirmPassword = confirmPasswordInput.getPassword();
-
-    if (!new String(password).equals(new String(confirmPassword))) {
-      MessageDisplayer.showErrorMessage(
-          null,
-          "Por favor, certifique-se de que as senhas coincidem.",
-          "Erro"
-      );
-    }
-
-    final User user = new User(name, email, cpf, UserType.BUYER);
-    boolean isUserCreated = false;
-
-    try {
-      isUserCreated = userDAO.addUser(user, password);
-    } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar usuário: " + ex.getMessage());
-    }
-
-    if (isUserCreated) {
-      MessageDisplayer.showSuccessMessage(
-          null,
-          "O usuário foi cadastrado com sucesso.",
-          "Sucesso"
-      );
+    if (!isValidCreateUserInput(password, confirmPassword)) {
       return;
     }
 
-    MessageDisplayer.showErrorMessage(
-        null,
-        "Houve uma falha ao cadastrar o usuário.",
-        "Erro"
-    );
+    User newUser = createUserObjectFromInput(name, email, cpf);
+
+    if (saveNewUser(newUser, password)) {
+      MessageDisplayer.showSuccessMessage(null, "O usuário foi cadastrado com sucesso.", "Sucesso"); // Usar MessageDisplayer
+      clearCreateUserInputs();
+    } else {
+      MessageDisplayer.showErrorMessage(null, "Houve uma falha ao cadastrar o usuário.", "Erro"); // Usar MessageDisplayer
+    }
   }
 
-  private void tryLogin() {
-    final String email = emailText.getText();
-    final char[] password = passwordText.getPassword();
+  private boolean isValidCreateUserInput(char[] password, char[] confirmPassword) {
+    if (!doPasswordsMatch(password, confirmPassword)) {
+      MessageDisplayer.showErrorMessage(null, "As senhas não conferem.", "Erro");
+      return false;
+    }
 
-    User user = null;
-    boolean isUserValid = false;
+    return true;
+  }
 
+  private boolean doPasswordsMatch(char[] password, char[] confirmPassword) {
+    return new String(password).equals(new String(confirmPassword));
+  }
+
+  private User createUserObjectFromInput(String name, String email, String cpf) {
+    return new User(name, email, cpf, UserType.BUYER);
+  }
+
+  private boolean saveNewUser(User user, char[] password) {
     try {
-      user = userDAO.getUserByEmail(email);
-      isUserValid = userDAO.validateUser(email, password);
-
+      return userDAO.addUser(user, password);
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar usuário: " + ex.getMessage());
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao cadastrar o usuário: " + ex.getMessage()); // Usar MessageDisplayer
+      return false;
     }
+  }
 
-    if (isUserValid) {
-      DashboardScreen dashboardScreen = new DashboardScreen(user);
-      dashboardScreen.setVisible(true);
-      dispose();
-      return;
+  private void clearCreateUserInputs() {
+    nameInput.setText("");
+    emailInput.setText("");
+    cpfInput.setText("");
+    passwordInput.setText("");
+    confirmPasswordInput.setText("");
+  }
+
+  private void handleLoginAttempt() {
+    String email = emailText.getText();
+    char[] password = passwordText.getPassword();
+
+    User user = attemptUserLogin(email, password);
+
+    if (user != null) {
+      navigateToDashboard(user);
+    } else {
+      MessageDisplayer.showErrorMessage(null, "Houve uma falha ao autentificar o usuário.", "Erro"); // Usar MessageDisplayer
     }
+  }
 
-    MessageDisplayer.showErrorMessage(
-        null,
-        "Houve uma falha ao autentificar o usuário, por favor verifique suas informações.",
-        "Erro"
-    );
+  private User attemptUserLogin(String email, char[] password) {
+    try {
+      if (userDAO.validateUser(email, password)) {
+        return userDAO.getUserByEmail(email);
+      } else {
+        return null;
+      }
+    } catch (SQLException ex) {
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao autentificar o usuário: " + ex.getMessage()); // Usar MessageDisplayer
+      return null;
+    }
+  }
+
+  private void navigateToDashboard(User user) {
+    DashboardScreen dashboardScreen = new DashboardScreen(user);
+    dashboardScreen.setVisible(true);
+    dispose();
   }
 
   /**
