@@ -50,10 +50,10 @@ public class LoginScreen extends javax.swing.JFrame {
     User newUser = createUserObjectFromInput(name, email, cpf);
 
     if (saveNewUser(newUser, password)) {
-      MessageDisplayer.showSuccessMessage(null, "O usuário foi cadastrado com sucesso.", "Sucesso"); // Usar MessageDisplayer
+      MessageDisplayer.showSuccessMessage(null, "O usuário foi cadastrado com sucesso.", "Sucesso");
       clearCreateUserInputs();
     } else {
-      MessageDisplayer.showErrorMessage(null, "Houve uma falha ao cadastrar o usuário.", "Erro"); // Usar MessageDisplayer
+      MessageDisplayer.showErrorMessage(null, "Houve uma falha ao cadastrar o usuário.", "Erro");
     }
   }
 
@@ -78,7 +78,7 @@ public class LoginScreen extends javax.swing.JFrame {
     try {
       return userDAO.addUser(user, password);
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao cadastrar o usuário: " + ex.getMessage()); // Usar MessageDisplayer
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao cadastrar o usuário.");
       return false;
     }
   }
@@ -100,7 +100,7 @@ public class LoginScreen extends javax.swing.JFrame {
     if (user != null) {
       navigateToDashboard(user);
     } else {
-      MessageDisplayer.showErrorMessage(null, "Houve uma falha ao autentificar o usuário.", "Erro"); // Usar MessageDisplayer
+      MessageDisplayer.showErrorMessage(null, "Houve uma falha ao autentificar o usuário.", "Erro");
     }
   }
 
@@ -112,7 +112,7 @@ public class LoginScreen extends javax.swing.JFrame {
         return null;
       }
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao autentificar o usuário: " + ex.getMessage()); // Usar MessageDisplayer
+      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao autentificar o usuário.");
       return null;
     }
   }
