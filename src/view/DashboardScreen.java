@@ -115,7 +115,7 @@ public class DashboardScreen extends javax.swing.JFrame {
     } catch (SQLException ex) {
       MessageDisplayer.showDatabaseErrorDialog(
           this,
-          "Erro ao adicionar casa: " + ex.getMessage()
+          "Erro ao adicionar casa."
       );
       return;
     }
