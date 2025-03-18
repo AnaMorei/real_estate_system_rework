@@ -1,17 +1,17 @@
 package view;
 
-import dao.DatabaseConnection;
 import dao.HouseDAO;
 import dao.TransactionDAO;
 import dao.UserDAO;
+import dao.DatabaseConnection;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.sql.Connection;
 import model.User;
 import model.House;
 import model.Transaction;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
+import java.sql.Connection;
 import javax.swing.table.DefaultTableModel;
 import model.UserType;
 import java.sql.Date;
@@ -26,9 +26,8 @@ public class DashboardScreen extends javax.swing.JFrame {
   private final UserDAO userDAO;
 
   public DashboardScreen(User user) {
-
-    DatabaseConnection databaseConnection = DatabaseConnection.getInstance();
-    Connection connection = databaseConnection.getConnection();
+    DatabaseConnection dbConnection = DatabaseConnection.getInstance();
+    Connection connection = dbConnection.getConnection();
 
     this.houseDAO = new HouseDAO(connection);
     this.transactionDAO = new TransactionDAO(connection);
@@ -66,18 +65,20 @@ public class DashboardScreen extends javax.swing.JFrame {
     User selectedUser = (User) transactionCreateBuyerComboBox.getSelectedItem();
     String price = transactionCreatePriceInput.getText();
     LocalDate date = LocalDate.now();
-    Transaction transaction = new Transaction(
-        Date.valueOf(date),
+    boolean isTransactionInserted = false;
+    Transaction transaction = new Transaction(Date.valueOf(date),
         Double.parseDouble(price),
         selectedUser.getId(),
         user.getId(),
         selectedHouse.getId());
-    boolean isTransactionInserted = false;
 
     try {
       isTransactionInserted = transactionDAO.addTransaction(transaction);
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao criar transação: " + ex.getMessage());
+      MessageDisplayer.showDatabaseErrorDialog(
+          null,
+          "Erro ao adicionar transação."
+      );
       return;
     }
 
@@ -86,13 +87,11 @@ public class DashboardScreen extends javax.swing.JFrame {
       transactionCreateBuyerComboBox.setSelectedIndex(-1);
       transactionCreatePriceInput.setText("");
       updateAll();
-
       MessageDisplayer.showSuccessMessage(
           null,
-          "Por favor, certifique-se de que as senhas coincidem.",
+          "A transação foi cadastrada com sucesso.",
           "Sucesso"
       );
-
       return;
     }
 
@@ -114,7 +113,10 @@ public class DashboardScreen extends javax.swing.JFrame {
     try {
       isHouseAdded = houseDAO.addHouse(house);
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar a casa: " + ex.getMessage());
+      MessageDisplayer.showDatabaseErrorDialog(
+          this,
+          "Erro ao adicionar casa: " + ex.getMessage()
+      );
       return;
     }
 
@@ -124,18 +126,15 @@ public class DashboardScreen extends javax.swing.JFrame {
       houseCreateSizeInput.setText("");
       houseCreatePriceInput.setText("");
       updateAll();
-
       MessageDisplayer.showSuccessMessage(
-          null,
+          this,
           "A casa foi cadastrada com sucesso.",
           "Sucesso"
       );
-
       return;
     }
-
     MessageDisplayer.showErrorMessage(
-        null,
+        this,
         "Houve uma falha ao cadastrar a casa.",
         "Erro"
     );
@@ -156,46 +155,50 @@ public class DashboardScreen extends javax.swing.JFrame {
       houses = houseDAO.getAllHouses();
       users = userDAO.getAllUsers();
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar as casas ou usuários: " + ex.getMessage());
+      MessageDisplayer.showDatabaseErrorDialog(
+          this,
+          "Erro ao buscar dados para as opções."
+      );
       return;
     }
 
     DefaultComboBoxModel<House> houseModel = new DefaultComboBoxModel<>();
     DefaultComboBoxModel<User> userModel = new DefaultComboBoxModel<>();
 
-    if (houses != null) {
-      for (House house : houses) {
-        houseModel.addElement(house);
-      }
-      transactionCreateHouseComboBox.setModel(houseModel);
+    for (House house : houses) {
+      houseModel.addElement(house);
     }
 
-    if (users != null) {
-      for (User user : users) {
-        userModel.addElement(user);
-      }
-      transactionCreateBuyerComboBox.setModel(userModel);
+    for (User user : users) {
+      userModel.addElement(user);
     }
+
+    transactionCreateHouseComboBox.setModel(houseModel);
+    transactionCreateBuyerComboBox.setModel(userModel);
   }
 
   private void setHouseTableData() {
     List<House> houses = null;
-
     try {
       houses = houseDAO.getAllHouses();
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar todas as casas: " + ex.getMessage());
+      MessageDisplayer.showDatabaseErrorDialog(
+          this,
+          "Erro ao buscar dados das casas."
+      );
       return;
     }
-
     DefaultTableModel tableModel = (DefaultTableModel) houseListTable.getModel();
     tableModel.setRowCount(0);
 
-    if (houses != null) {
-      for (House house : houses) {
-        Object[] row = {house.getAddress(), house.getDescription(), house.getSize() + " m²", String.format("%.2f", house.getPrice())};
-        tableModel.addRow(row);
-      }
+    for (House house : houses) {
+      Object[] row = {
+        house.getAddress(),
+        house.getDescription(), house.getSize() + " m²",
+        String.format("%.2f", house.getPrice())
+      };
+
+      tableModel.addRow(row);
     }
 
     houseListTable.setEnabled(false);
@@ -207,36 +210,37 @@ public class DashboardScreen extends javax.swing.JFrame {
     try {
       transactions = transactionDAO.getAllTransactions();
     } catch (SQLException ex) {
-      MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar transações: " + ex.getMessage());
+      MessageDisplayer.showDatabaseErrorDialog(
+          this,
+          "Erro ao buscar dados das transações."
+      );
+      return;
     }
 
     DefaultTableModel tableModel = (DefaultTableModel) TransactionListTable.getModel();
     tableModel.setRowCount(0);
 
-    if (transactions != null) {
-      for (Transaction transaction : transactions) {
-        House house = null;
-        User user = null;
+    for (Transaction transaction : transactions) {
+      House house = null;
+      User user = null;
+      try {
+        house = houseDAO.getHouseById(transaction.getHouseId());
+        user = userDAO.getUserById(transaction.getBuyerId());
 
-        try {
-          house = houseDAO.getHouseById(transaction.getHouseId());
-          user = userDAO.getUserById(transaction.getBuyerId());
-        } catch (SQLException ex) {
-          MessageDisplayer.showDatabaseErrorDialog(null, "Erro ao buscar a casa ou usuário: " + ex.getMessage());
-        }
-
-        if (house == null || user == null) {
-          return;
-        }
-
-        Object[] row = {
-          house.getAddress(),
-          user.getName(),
-          transaction.getAmount(),
-          transaction.getDate(),};
-
-        tableModel.addRow(row);
+      } catch (SQLException ex) {
+        MessageDisplayer.showDatabaseErrorDialog(
+            this,
+            "Erro ao buscar dados relacionados."
+        );
+        continue;
       }
+
+      Object[] row = {
+        house.getAddress(),
+        user.getName(),
+        transaction.getAmount(),
+        transaction.getDate(),};
+      tableModel.addRow(row);
     }
 
     TransactionListTable.setEnabled(false);
